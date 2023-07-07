@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "90750158186",
+    "project_id": "messagin-c388a",
+    "storage_bucket": "messagin-c388a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:90750158186:android:2a6ac9faa2cf0a6b4c9113",
+        "android_client_info": {
+          "package_name": "com.blackhawk.messagin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "90750158186-labhfg58hdvqj9581hf021e8kbuedjjm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCKmP_XH7DddCrtLxgHt1RE5dC_Sv4VHWw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "90750158186-labhfg58hdvqj9581hf021e8kbuedjjm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
