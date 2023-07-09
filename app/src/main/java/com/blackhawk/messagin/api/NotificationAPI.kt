@@ -2,6 +2,7 @@ package com.blackhawk.messagin.api
 
 import com.blackhawk.messagin.data.Image
 import com.blackhawk.messagin.data.PushNotification
+import com.blackhawk.messagin.data.User
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
@@ -22,5 +23,10 @@ interface NotificationAPI {
     suspend fun getByteArray(
         @Body image: Image
     ): Response<Image>
+
+    @POST("/api/user/register")
+    suspend fun registerUser(
+        @Body user : User
+    ) : Response<ResponseBody>
 
 }

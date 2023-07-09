@@ -2,9 +2,11 @@ package com.blackhawk.messagin.firebase
 
 
 import android.content.SharedPreferences
+import android.util.Log
 import com.blackhawk.messagin.NotificationService
 import com.blackhawk.messagin.api.RetrofitInstance
 import com.blackhawk.messagin.data.Image
+import com.blackhawk.messagin.data.User
 import com.google.android.gms.tasks.Tasks.await
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -36,12 +38,17 @@ class FirebaseService : FirebaseMessagingService() {
     override fun onNewToken(newToken: String) {
         super.onNewToken(newToken)
         token = newToken
+        CoroutineScope(Dispatchers.IO).launch {
+            RetrofitInstance.api.registerUser(
+                User(newToken, null)
+            )
+        }
     }
 
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-
+        Log.d("FirebaseService", "Message Receved")
         if(message.data["device_from"] == token)
             return
 
@@ -61,6 +68,7 @@ class FirebaseService : FirebaseMessagingService() {
         title?.let {
             notificationService.pushNotification(
                 it,
+                message.data["messageTitle"]!!,
                 message.data["message"],
                 imageByte!!.imageBytes!!
             )

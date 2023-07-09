@@ -78,6 +78,7 @@ import com.blackhawk.messagin.api.RetrofitInstance
 import com.blackhawk.messagin.data.Message
 import com.blackhawk.messagin.data.NotificationData
 import com.blackhawk.messagin.data.PushNotification
+import com.blackhawk.messagin.data.User
 import com.blackhawk.messagin.firebase.FirebaseService
 import com.blackhawk.messagin.tools.convertToString
 import com.blackhawk.messagin.ui.theme.MessaginTheme
@@ -112,6 +113,7 @@ class MainActivity : ComponentActivity() {
 
         FirebaseService.sharedPreferences = getSharedPreferences("TokenPreferences", MODE_PRIVATE)
         notification = NotificationService(this)
+
         if(!notification.hasNotificationPermission)
         {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -136,6 +138,13 @@ class MainActivity : ComponentActivity() {
             // Log and toast
             Log.d(TAG, token)
             FirebaseService.token = token
+
+            CoroutineScope(Dispatchers.IO).launch {
+                RetrofitInstance.api.registerUser(
+                    User(token, null)
+                )
+            }
+
         })
 
         setContent {
@@ -176,7 +185,7 @@ fun SendMessage(viewModel: MessaginViewModel?) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val scaffoldState = rememberBottomSheetScaffoldState(
-        SheetState(true, SheetValue.Hidden)
+        SheetState(false, SheetValue.PartiallyExpanded)
     )
     val scope = rememberCoroutineScope()
 
@@ -228,7 +237,7 @@ fun SendMessage(viewModel: MessaginViewModel?) {
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center
+            //verticalArrangement = Arrangement.Center
         ) {
             items(messages) {
                 Row(
@@ -238,7 +247,7 @@ fun SendMessage(viewModel: MessaginViewModel?) {
                         .clickable {
                             viewModel?.selectedMessage?.value = it
                             scope.launch {
-                                scaffoldState.bottomSheetState.show()
+                                scaffoldState.bottomSheetState.expand()
                             }
                             println("click")
                         }

@@ -22,6 +22,7 @@ private val lightBottomSheetColor = Color(0xFFDBDBDB)
 var bottomSheetColor = lightBottomSheetColor
 private set
 
+
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
     secondary = PurpleGrey80,
@@ -33,6 +34,9 @@ private val LightColorScheme = lightColorScheme(
     secondary = PurpleGrey40,
     tertiary = Pink40
 )
+
+var primaryColor = LightColorScheme.primary
+    private set
 
 @Composable
 fun MessaginTheme(
@@ -58,8 +62,10 @@ fun MessaginTheme(
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
         }
     }
-    if(darkTheme)
+    if(darkTheme) {
         bottomSheetColor = darkBottomSheetColor
+        primaryColor = DarkColorScheme.primary
+    }
 
     MaterialTheme(
         colorScheme = colorScheme,

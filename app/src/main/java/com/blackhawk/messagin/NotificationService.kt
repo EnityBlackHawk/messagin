@@ -7,12 +7,16 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Resources.Theme
+import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.NotificationCompat
 import com.blackhawk.messagin.tools.toBitmap
+import com.blackhawk.messagin.ui.theme.primaryColor
 import kotlin.random.Random
 
 
@@ -60,7 +64,7 @@ class NotificationService(private val context : Context) {
             else true
     }
 
-    fun pushNotification(title: String, message: String?, imageByteArray: String)
+    fun pushNotification(title: String, messageTitle: String, message: String?, imageByteArray: String)
     {
 
         val intent = Intent(context, MainActivity::class.java)
@@ -75,15 +79,23 @@ class NotificationService(private val context : Context) {
             intent,
             PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
+        val bit = imageByteArray.toBitmap()
         val notification = NotificationCompat.Builder(context, "main")
             .setContentTitle(title)
-            .setContentText(message)
+            .setContentText(messageTitle)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
             .setShowWhen(true)
-            .setLargeIcon(imageByteArray.toBitmap())
-            .setColor(Color.Red.toArgb())
+            .setLargeIcon(bit)
+            .setColor(primaryColor.toArgb())
+            .setStyle(
+                NotificationCompat.BigPictureStyle()
+                    .bigPicture(bit)
+                    .bigLargeIcon(null as Bitmap?)
+                    .setBigContentTitle(messageTitle)
+                    .setSummaryText(message)
+            )
             .build()
 
 
