@@ -3,8 +3,15 @@ package com.blackhawk.messagin.firebase
 
 import android.content.SharedPreferences
 import com.blackhawk.messagin.NotificationService
+import com.blackhawk.messagin.api.RetrofitInstance
+import com.blackhawk.messagin.data.Image
+import com.google.android.gms.tasks.Tasks.await
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 
 class FirebaseService : FirebaseMessagingService() {
@@ -40,9 +47,23 @@ class FirebaseService : FirebaseMessagingService() {
 
 
         val title = message.data["title"]
+        var imageByte : Image? = null
+        runBlocking {
+            imageByte = RetrofitInstance.api.getByteArray(
+                Image(
+                    message.data["imageResource"]
+                        ?: throw RuntimeException("ImageResource was null"),
+                    null
+                )
+            ).body()
+        }
 
         title?.let {
-            notificationService.pushNotification(it, message.data["message"])
+            notificationService.pushNotification(
+                it,
+                message.data["message"],
+                imageByte!!.imageBytes!!
+            )
         }
     }
 
