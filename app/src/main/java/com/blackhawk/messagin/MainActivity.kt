@@ -70,10 +70,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.ViewModel
 import com.blackhawk.messagin.api.RetrofitInstance
 import com.blackhawk.messagin.data.Message
 import com.blackhawk.messagin.data.NotificationData
@@ -81,6 +84,8 @@ import com.blackhawk.messagin.data.PushNotification
 import com.blackhawk.messagin.data.User
 import com.blackhawk.messagin.firebase.FirebaseService
 import com.blackhawk.messagin.tools.convertToString
+import com.blackhawk.messagin.ui.Navigation
+import com.blackhawk.messagin.ui.SendMessage
 import com.blackhawk.messagin.ui.theme.MessaginTheme
 import com.blackhawk.messagin.ui.theme.bottomSheetColor
 import com.blackhawk.messagin.viewModel.MessaginViewModel
@@ -98,13 +103,13 @@ import kotlinx.coroutines.runBlocking
 
 const val TAG = "MainActivity"
 
-const val TOPIC = "/topics/MyTopic"
+const val TOPIC = "NewVersion"
 
 class MainActivity : ComponentActivity() {
 
     private lateinit var notification : NotificationService
 
-    private val viewModel : MessaginViewModel by viewModels {
+    val viewModel : MessaginViewModel by viewModels {
         MessaginViewModelFactory(resources)
     }
 
@@ -154,7 +159,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    SendMessage(viewModel)
+                    Navigation(viewModel)
                 }
             }
         }
@@ -162,234 +167,11 @@ class MainActivity : ComponentActivity() {
 
 
 }
-
-@Composable
-fun Header() {
-    Surface(
-        modifier = Modifier.background(
-            MaterialTheme.colorScheme.primary,
-            shape = RoundedCornerShape(0f, 0f, 0.5f, 0.5f)
-        )
-    ) {
-
-    }
-}
-
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SendMessage(viewModel: MessaginViewModel?) {
-
-    val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
-
-    val scaffoldState = rememberBottomSheetScaffoldState(
-        SheetState(false, SheetValue.PartiallyExpanded)
-    )
-    val scope = rememberCoroutineScope()
-
-
-
-    val messages by remember { viewModel!!.messagesList }
-
-    BottomSheetScaffold(
-        sheetContent = {
-            BottomSheetContent(viewModel = viewModel)
-            {
-                LaunchedEffect(Dispatchers.Default) {
-                    scope.launch {
-                        scaffoldState.bottomSheetState.hide()
-                    }
-                }
-            }
-        },
-        scaffoldState = scaffoldState,
-        sheetSwipeEnabled = true,
-        sheetContainerColor = bottomSheetColor,
-        modifier = Modifier.pointerInput(Unit)
-        {
-            detectTapGestures {
-                scope.launch {
-                    if(scaffoldState.bottomSheetState.isVisible)
-                        scaffoldState.bottomSheetState.hide()
-                }
-            }
-        }
-    ) {
-
-        DisposableEffect(lifecycleOwner) {
-            val observer = LifecycleEventObserver { _, event ->
-                if(event == Lifecycle.Event.ON_STOP)
-                {
-                    Log.d("Main", "Pause")
-                    scope.launch {
-                        scaffoldState.bottomSheetState.show()
-                    }
-                }
-            }
-            lifecycleOwner.lifecycle.addObserver(observer)
-
-            onDispose {
-                lifecycleOwner.lifecycle.removeObserver(observer)
-            }
-        }
-
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            //verticalArrangement = Arrangement.Center
-        ) {
-            items(messages) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp)
-                        .clickable {
-                            viewModel?.selectedMessage?.value = it
-                            scope.launch {
-                                scaffoldState.bottomSheetState.expand()
-                            }
-                            println("click")
-                        }
-                ) {
-
-                    Image(
-                        painter = painterResource(id = it.imageResource),
-                        contentDescription = "",
-                        modifier = Modifier.weight(1f)
-                    )
-                    Text(
-                        text = it.title,
-                        style = MaterialTheme.typography.headlineLarge,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .align(Alignment.CenterVertically)
-                            .padding(10.dp)
-                            .weight(2f),
-                    )
-                }
-            }
-        }
-    }
-
-}
-
-@OptIn(ExperimentalAnimationApi::class)
-@Composable
-fun BottomSheetContent(
-    viewModel: MessaginViewModel?,
-    modifier: Modifier = Modifier,
-    onClose : @Composable () -> Unit
-) {
-
-    var isSended by remember {
-        mutableStateOf(false)
-    }
-    var forExit by remember {
-        mutableStateOf(false)
-    }
-
-    var scope = rememberCoroutineScope()
-
-    val selectedMessage by remember {
-        viewModel!!.selectedMessage
-    }
-
-    var messageValue by remember {
-         mutableStateOf( TextFieldValue(viewModel?.messageText?.value!!) )
-    }
-
-    if(forExit)
-        onClose()
-
-
-
-    Column(modifier = Modifier.padding(14.dp)) {
-        Text(
-            text = selectedMessage.title,
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
-        )
-
-        LazyVerticalGrid(columns = GridCells.Fixed(2)) {
-            item {
-
-                Box(
-                    modifier = Modifier.height(50.dp),
-                    contentAlignment = Alignment.CenterStart
-                ) {
-                    Text(text = "Mensagem:")
-                }
-
-            }
-            item {
-                TextField(
-                    value = messageValue,
-                    onValueChange = {
-                        viewModel?.messageText?.value = it.text
-                        messageValue = it
-                    },
-                    colors = TextFieldDefaults.colors(unfocusedContainerColor = bottomSheetColor),
-                    placeholder = {
-                        Text(text = "Insira a mensagem")
-                    }
-                )
-            }
-            item(span = {
-                GridItemSpan(2)
-            }) {
-                
-                AnimatedContent(
-                    targetState = isSended,
-                    transitionSpec = {
-                        fadeIn() with fadeOut()
-                    }
-                ) {
-                    if(!it)
-                        Button(
-                            modifier = Modifier.padding(0.dp, 14.dp, 0.dp, 0.dp),
-                            onClick = {
-                                viewModel!!.sendMessage()
-                                isSended = true
-
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    delay(3000)
-                                    forExit = true
-                                    isSended = false
-                                }
-
-
-
-                            }) {
-                            Text(text = "Enviar mensagem")
-                        }
-                    else
-                        Button(
-                            modifier = Modifier.padding(0.dp, 14.dp, 0.dp, 0.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C853)),
-                            onClick = {
-                            }) {
-                            Text(text = "Mensagem enviada")
-                        }
-                }
-                
-
-            }
-        }
-
-    }
-
-}
-
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     MessaginTheme {
-        Column(Modifier.fillMaxSize()) {
-            Header()
-            SendMessage(viewModel = MessaginViewModel(LocalContext.current.resources))
-        }
 
     }
 }

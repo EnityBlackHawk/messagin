@@ -24,13 +24,13 @@ private set
 
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
+    primary = Color(0xFF7986CB),
     secondary = PurpleGrey80,
     tertiary = Pink80,
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
+    primary = Color(0xFF7986CB),
     secondary = PurpleGrey40,
     tertiary = Pink40
 )

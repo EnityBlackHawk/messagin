@@ -56,21 +56,30 @@ class FirebaseService : FirebaseMessagingService() {
         val title = message.data["title"]
         var imageByte : Image? = null
         runBlocking {
-            imageByte = RetrofitInstance.api.getByteArray(
+            val resp = RetrofitInstance.api.getByteArray(
                 Image(
                     message.data["imageResource"]
                         ?: throw RuntimeException("ImageResource was null"),
                     null
                 )
-            ).body()
+            )
+            if(!resp.isSuccessful)
+            {
+                Log.e("Service", resp.message())
+                Log.e("Service", resp.errorBody().toString())
+            }
+            imageByte = resp.body()
         }
+
+        if(imageByte == null) return
+        if(imageByte!!.imageBytes == null) return
 
         title?.let {
             notificationService.pushNotification(
                 it,
                 message.data["messageTitle"]!!,
                 message.data["message"],
-                imageByte!!.imageBytes!!
+                imageByte?.imageBytes
             )
         }
     }

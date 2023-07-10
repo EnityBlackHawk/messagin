@@ -37,7 +37,6 @@ class MessaginViewModel(private val resources: Resources) : ViewModel() {
 
     var selectedMessage = mutableStateOf(messagesList.value[0])
 
-
     var messageText = mutableStateOf("")
 
 

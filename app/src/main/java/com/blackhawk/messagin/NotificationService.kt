@@ -64,7 +64,7 @@ class NotificationService(private val context : Context) {
             else true
     }
 
-    fun pushNotification(title: String, messageTitle: String, message: String?, imageByteArray: String)
+    fun pushNotification(title: String, messageTitle: String, message: String?, imageByteArray: String?)
     {
 
         val intent = Intent(context, MainActivity::class.java)
@@ -79,11 +79,11 @@ class NotificationService(private val context : Context) {
             intent,
             PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
-        val bit = imageByteArray.toBitmap()
+        val bit = imageByteArray?.toBitmap()
         val notification = NotificationCompat.Builder(context, "main")
             .setContentTitle(title)
             .setContentText(messageTitle)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.coracao)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
             .setShowWhen(true)
