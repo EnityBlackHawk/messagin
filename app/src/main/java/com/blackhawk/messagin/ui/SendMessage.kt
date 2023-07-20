@@ -14,9 +14,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -46,15 +48,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.navigation.NavController
+import com.blackhawk.messagin.R
+import com.blackhawk.messagin.ui.theme.MessaginTheme
 import com.blackhawk.messagin.ui.theme.bottomSheetColor
 import com.blackhawk.messagin.viewModel.MessaginViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -63,24 +70,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-@Composable
-fun Header() {
-    Surface(
-        modifier = Modifier
-            .background(
-                MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(0f, 0f, 0.5f, 0.5f)
-            )
-            .fillMaxWidth()
-    ) {
-    }
-}
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SendMessage(viewModel: MessaginViewModel?) {
+fun SendMessage(navController: NavController?, viewModel: MessaginViewModel?) {
 
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -144,17 +137,32 @@ fun SendMessage(viewModel: MessaginViewModel?) {
                 color = MaterialTheme.colorScheme.primary,
                 shape = RoundedCornerShape(0f, 0f, 50f, 50f)
             ) {
-                Column(
-                    modifier = Modifier.padding(14.dp),
-                    verticalArrangement = Arrangement.Bottom
-                ) {
-                    Text(text = "Olá princesa",
-                        style = MaterialTheme.typography.headlineLarge
+                Row(modifier = Modifier.padding(14.dp),) {
+                    Column(
+                        verticalArrangement = Arrangement.Bottom,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            text = "Olá princesa",
+                            style = MaterialTheme.typography.headlineLarge
+                        )
+                        Text(
+                            text = "Escolha uma mensagem:",
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }
+                    Image(
+                        painter = painterResource(id = R.drawable.baseline_message_24),
+                        contentDescription = "",
+                        modifier = Modifier
+                            .height(32.dp)
+                            .width(32.dp)
+                            .align(Alignment.Bottom)
+                            .clickable {
+                                       navController?.navigate(Screen.Historic.route)
+                            },
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary)
                     )
-                    Text(text = "Escolha uma mensagem:",
-                        style = MaterialTheme.typography.titleLarge
-                    )
-
                 }
             }
 
@@ -211,15 +219,14 @@ fun BottomSheetContent(
         mutableStateOf(false)
     }
 
-    var scope = rememberCoroutineScope()
-
     val selectedMessage by remember {
         viewModel!!.selectedMessage
     }
 
     var messageValue by remember {
-        mutableStateOf( TextFieldValue(viewModel?.messageText?.value!!) )
+        viewModel?.messageText!!
     }
+
 
     if(forExit)
         onClose()
@@ -248,7 +255,7 @@ fun BottomSheetContent(
                 TextField(
                     value = messageValue,
                     onValueChange = {
-                        viewModel?.messageText?.value = it.text
+                        //viewModel?.messageText?.value = it.text
                         messageValue = it
                     },
                     colors = TextFieldDefaults.colors(unfocusedContainerColor = bottomSheetColor),
@@ -278,6 +285,7 @@ fun BottomSheetContent(
                                     delay(3000)
                                     forExit = true
                                     isSended = false
+
                                 }
 
 
@@ -301,4 +309,13 @@ fun BottomSheetContent(
 
     }
 
+}
+
+
+@Preview
+@Composable
+fun LocalPreview() {
+    MessaginTheme() {
+        SendMessage(navController = null, viewModel = MessaginViewModel(LocalContext.current.resources, null))
+    }
 }

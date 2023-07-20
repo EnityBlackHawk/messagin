@@ -8,6 +8,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -15,9 +16,11 @@ import com.blackhawk.messagin.R
 import com.blackhawk.messagin.TAG
 import com.blackhawk.messagin.api.RetrofitInstance
 import com.blackhawk.messagin.data.Message
+import com.blackhawk.messagin.data.MessagePersist
 import com.blackhawk.messagin.data.NotificationData
 import com.blackhawk.messagin.data.PushNotification
 import com.blackhawk.messagin.firebase.FirebaseService
+import com.blackhawk.messagin.room.MessagePersistDao
 import com.blackhawk.messagin.tools.convertToString
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
@@ -25,7 +28,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-class MessaginViewModel(private val resources: Resources) : ViewModel() {
+class MessaginViewModel(
+    private val resources: Resources,
+    private val messagePersistDao: MessagePersistDao?
+) : ViewModel() {
 
     val messagesList = mutableStateOf(
         listOf(
@@ -37,7 +43,7 @@ class MessaginViewModel(private val resources: Resources) : ViewModel() {
 
     var selectedMessage = mutableStateOf(messagesList.value[0])
 
-    var messageText = mutableStateOf("")
+    var messageText = mutableStateOf(TextFieldValue(""))
 
 
     fun sendMessage()
@@ -46,11 +52,12 @@ class MessaginViewModel(private val resources: Resources) : ViewModel() {
             resources, selectedMessage.value.imageResource
         )
         val push = PushNotification(
-            NotificationData(selectedMessage.value.title, messageText.value,
+            NotificationData(selectedMessage.value.title, messageText.value.text,
                 bit.convertToString()),
             FirebaseService.token
         )
         sendNotification(push)
+        messageText.value = TextFieldValue("")
     }
 
 
@@ -62,12 +69,20 @@ class MessaginViewModel(private val resources: Resources) : ViewModel() {
                 val response = RetrofitInstance.api.sendNotification(notification)
                 if(response.isSuccessful)
                 {
-                    Log.d(TAG, "Response ${Gson().toJson(response)}")
+                    Log.d("MessageViewModel", "Response ${Gson().toJson(response)}")
+                    messagePersistDao?.insert(
+                        MessagePersist(
+                            response.body()?.id!!,
+                            notification.data.title,
+                            notification.data.message,
+                            notification.data.imageResource
+                        )
+                    )
                 }
-                else Log.e(TAG, response.errorBody().toString())
+                else Log.e("MessageViewModel", response.errorBody().toString())
             }catch (e: Exception)
             {
-                Log.e("MainActivity", e.toString())
+                Log.e("MessageViewModel", e.toString())
             }
 
         }
@@ -75,11 +90,14 @@ class MessaginViewModel(private val resources: Resources) : ViewModel() {
 
 }
 
-class MessaginViewModelFactory(private val res : Resources) : ViewModelProvider.Factory {
+class MessaginViewModelFactory(
+    private val res: Resources,
+    private val messagePersistDao: MessagePersistDao
+) : ViewModelProvider.Factory {
 
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return MessaginViewModel(res) as T
+        return MessaginViewModel(res, messagePersistDao) as T
     }
 
 }

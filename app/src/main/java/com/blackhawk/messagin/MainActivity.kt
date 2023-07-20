@@ -88,6 +88,8 @@ import com.blackhawk.messagin.ui.Navigation
 import com.blackhawk.messagin.ui.SendMessage
 import com.blackhawk.messagin.ui.theme.MessaginTheme
 import com.blackhawk.messagin.ui.theme.bottomSheetColor
+import com.blackhawk.messagin.viewModel.HistoricViewModel
+import com.blackhawk.messagin.viewModel.HistoricViewModelFactory
 import com.blackhawk.messagin.viewModel.MessaginViewModel
 import com.blackhawk.messagin.viewModel.MessaginViewModelFactory
 import com.google.android.gms.tasks.OnCompleteListener
@@ -110,8 +112,18 @@ class MainActivity : ComponentActivity() {
     private lateinit var notification : NotificationService
 
     val viewModel : MessaginViewModel by viewModels {
-        MessaginViewModelFactory(resources)
+        MessaginViewModelFactory(
+            resources,
+            (application as MessaginApplication).database.messagePersistDao()
+        )
     }
+
+    val historicViewModel : HistoricViewModel by viewModels {
+        HistoricViewModelFactory(
+            (application as MessaginApplication).database.messagePersistDao()
+        )
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -159,7 +171,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Navigation(viewModel)
+                    Navigation(viewModel, historicViewModel)
                 }
             }
         }

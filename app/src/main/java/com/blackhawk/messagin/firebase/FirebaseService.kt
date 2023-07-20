@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.util.Log
 import com.blackhawk.messagin.NotificationService
 import com.blackhawk.messagin.api.RetrofitInstance
+import com.blackhawk.messagin.data.Confirmation
 import com.blackhawk.messagin.data.Image
 import com.blackhawk.messagin.data.User
 import com.google.android.gms.tasks.Tasks.await
@@ -39,9 +40,13 @@ class FirebaseService : FirebaseMessagingService() {
         super.onNewToken(newToken)
         token = newToken
         CoroutineScope(Dispatchers.IO).launch {
-            RetrofitInstance.api.registerUser(
+            val resp = RetrofitInstance.api.registerUser(
                 User(newToken, null)
             )
+            if(!resp.isSuccessful)
+            {
+                Log.e("Service", resp.message())
+            }
         }
     }
 
@@ -51,6 +56,12 @@ class FirebaseService : FirebaseMessagingService() {
         Log.d("FirebaseService", "Message Receved")
         if(message.data["device_from"] == token)
             return
+
+        CoroutineScope(Dispatchers.IO).launch {
+            RetrofitInstance.api.confirmMessage(
+                Confirmation(message.data["messageId"]!!, token!!)
+            )
+        }
 
 
         val title = message.data["title"]
