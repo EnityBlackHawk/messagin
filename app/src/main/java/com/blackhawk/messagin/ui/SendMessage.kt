@@ -135,7 +135,7 @@ fun SendMessage(navController: NavController?, viewModel: MessaginViewModel?) {
                     .fillMaxWidth()
                     .height(100.dp),
                 color = MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(0f, 0f, 50f, 50f)
+                shape = RoundedCornerShape(0f, 0f, 0f, 50f)
             ) {
                 Row(modifier = Modifier.padding(14.dp),) {
                     Column(

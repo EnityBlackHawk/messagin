@@ -44,4 +44,10 @@ interface NotificationAPI {
         @Path("token") token : String
     ) : Response<List<RequestConfirmation>>
 
+
+    @GET("/api/request/getMessageStatus/{messageId}")
+    suspend fun getMessageStatus(
+        @Path("messageId") messageId : String
+    ) : Response<RequestConfirmation>
+
 }

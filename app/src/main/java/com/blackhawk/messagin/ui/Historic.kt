@@ -36,6 +36,8 @@ import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavDirections
 import com.blackhawk.messagin.R
 import com.blackhawk.messagin.data.MessagePersist
 import com.blackhawk.messagin.tools.toBitmap
@@ -48,11 +50,14 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun Historic(viewModel: HistoricViewModel?) {
+fun Historic(navController : NavController?, viewModel: HistoricViewModel?) {
     Column {
         Header(modifier = Modifier
             .height(100.dp)
             .fillMaxWidth())
+        {
+            navController?.navigate(Screen.MainScreen.route)
+        }
         ListOfMessages(viewModel, modifier = Modifier
             .weight(1f)
             .fillMaxWidth())
@@ -60,22 +65,25 @@ fun Historic(viewModel: HistoricViewModel?) {
 }
 
 @Composable
-fun Header(modifier: Modifier = Modifier) {
+fun Header(modifier: Modifier = Modifier, onBackClicked : (()-> Unit)? = null) {
 
     Box(modifier) {
         Surface(modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight(),
             color = MaterialTheme.colorScheme.primary,
-            shape = RoundedCornerShape(0f, 0f, 50f, 50f)
+            shape = RoundedCornerShape(0f, 0f, 50f, 0f)
             ) {
-            Row(modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+            Row(modifier = Modifier.fillMaxSize().padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
                 Image(
                     painter = painterResource(id = R.drawable.baseline_arrow_back_24),
                     contentDescription = "",
                     modifier = Modifier
                         .height(32.dp)
-                        .width(32.dp),
+                        .width(32.dp)
+                        .clickable {
+                                   onBackClicked?.invoke()
+                        },
                     colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary)
                 )
                 Spacer(modifier = Modifier.width(25.dp))
@@ -95,7 +103,7 @@ fun ListOfMessages(viewModel: HistoricViewModel?, modifier: Modifier = Modifier)
     LaunchedEffect(true)
     {
         viewModel?.loadStoredMessages()
-        viewModel?.requestIsDelivered()
+        viewModel?.requestMessageStatus()
     }
 
 
@@ -162,6 +170,6 @@ fun ListOfMessages(viewModel: HistoricViewModel?, modifier: Modifier = Modifier)
 @Composable
 fun ListPrev() {
     MessaginTheme {
-        Historic(viewModel = null)
+        Historic(null, viewModel = null)
     }
 }

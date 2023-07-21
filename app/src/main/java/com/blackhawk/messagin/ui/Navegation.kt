@@ -1,5 +1,8 @@
 package com.blackhawk.messagin.ui
 
+import androidx.compose.animation.slideIn
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -14,15 +17,39 @@ fun Navigation(viewModel: MessaginViewModel, historicViewModel: HistoricViewMode
 
 
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = Screen.MainScreen.route)
+    NavHost(navController = navController, startDestination = Screen.MainScreen.route,
+        enterTransition = {
+            slideInHorizontally() {
+                it
+            }
+        },
+        exitTransition = {
+            slideOutHorizontally {
+                it
+            }
+        }
+    )
     {
-        composable(Screen.MainScreen.route)
+
+
+        composable(Screen.MainScreen.route,
+            enterTransition = {
+                slideInHorizontally {
+                    -it
+                }
+            },
+            exitTransition = {
+                slideOutHorizontally {
+                    -it
+                }
+            }
+            )
         {
             SendMessage(navController, viewModel)
         }
         composable(Screen.Historic.route)
         {
-            Historic(historicViewModel)
+            Historic(navController, historicViewModel)
         }
     }
 

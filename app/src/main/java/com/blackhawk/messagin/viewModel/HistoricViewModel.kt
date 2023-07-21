@@ -52,6 +52,20 @@ class HistoricViewModel(private val dao: MessagePersistDao) : ViewModel() {
 
     }
 
+    fun requestMessageStatus()
+    {
+        CoroutineScope(Dispatchers.IO).launch {
+            _storedMessages.filter { !it.wasDelivered }.forEach {
+                val result = RetrofitInstance.api.getMessageStatus(it.id)
+                if(result.isSuccessful)
+                {
+                    it.wasDelivered = result.body()?.isDelivered ?: it.wasDelivered
+                }
+            }
+        }
+
+    }
+
 }
 
 
