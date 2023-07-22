@@ -11,6 +11,15 @@
           </Key>
         </deviceKey>
       </Target>
+      <Target>
+        <type value="RUNNING_DEVICE_TARGET" />
+        <deviceKey>
+          <Key>
+            <type value="SERIAL_NUMBER" />
+            <value value="79d9c4e3" />
+          </Key>
+        </deviceKey>
+      </Target>
     </runningDeviceTargetsSelectedWithDialog>
     <targetsSelectedWithDialog>
       <Target>

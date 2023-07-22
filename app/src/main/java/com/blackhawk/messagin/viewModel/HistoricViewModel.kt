@@ -60,10 +60,10 @@ class HistoricViewModel(private val dao: MessagePersistDao) : ViewModel() {
                 if(result.isSuccessful)
                 {
                     it.wasDelivered = result.body()?.isDelivered ?: it.wasDelivered
+                    dao.update(it)
                 }
             }
         }
-
     }
 
 }

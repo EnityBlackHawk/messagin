@@ -79,7 +79,7 @@ class MessaginViewModel(
                         )
                     )
                 }
-                else Log.e("MessageViewModel", response.errorBody().toString())
+                else Log.e("MessageViewModel", response.message())
             }catch (e: Exception)
             {
                 Log.e("MessageViewModel", e.toString())
