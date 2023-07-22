@@ -27,6 +27,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.util.Date
 
 class MessaginViewModel(
     private val resources: Resources,
@@ -74,6 +75,7 @@ class MessaginViewModel(
                         MessagePersist(
                             response.body()?.id!!,
                             notification.data.title,
+                            Date().time,
                             notification.data.message,
                             notification.data.imageResource
                         )

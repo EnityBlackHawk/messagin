@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -24,7 +25,7 @@ class HistoricViewModel(private val dao: MessagePersistDao) : ViewModel() {
 
     //val storedMessages : MutableState<List<MessagePersist>> = mutableStateOf(mutableListOf())
     private var _storedMessages = mutableStateListOf<MessagePersist>()
-    val storedMessages : List<MessagePersist> = _storedMessages
+    val storedMessages = _storedMessages
 
     fun loadStoredMessages() : List<MessagePersist>
     {
@@ -55,14 +56,30 @@ class HistoricViewModel(private val dao: MessagePersistDao) : ViewModel() {
     fun requestMessageStatus()
     {
         CoroutineScope(Dispatchers.IO).launch {
+            val news : MutableList<MessagePersist> = mutableListOf()
             _storedMessages.filter { !it.wasDelivered }.forEach {
                 val result = RetrofitInstance.api.getMessageStatus(it.id)
-                if(result.isSuccessful)
+                if(result.isSuccessful && result.body()?.isDelivered == true)
                 {
-                    it.wasDelivered = result.body()?.isDelivered ?: it.wasDelivered
+                    it.wasDelivered = true
                     dao.update(it)
+                    news.add(it)
                 }
             }
+
+            val iterator = _storedMessages.listIterator()
+            while(iterator.hasNext())
+            {
+                if(news.isEmpty())
+                    break
+                val current = iterator.next()
+                val new = news.find { it.id == current.id }
+                new?.apply {
+                    iterator.set(current.copy(wasDelivered = wasDelivered))
+                    news.remove(this)
+                }
+            }
+
         }
     }
 

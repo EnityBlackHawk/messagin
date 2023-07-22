@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -47,6 +48,9 @@ import com.blackhawk.messagin.viewModel.HistoricViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.Date
 
 
 @Composable
@@ -107,22 +111,22 @@ fun ListOfMessages(viewModel: HistoricViewModel?, modifier: Modifier = Modifier)
     }
 
 
-    val list : List<MessagePersist> = viewModel?.storedMessages ?: listOf()
+    val list = viewModel?.storedMessages ?: listOf()
 
 
 
     LazyColumn(modifier = modifier) {
-        items(list.size) {
+        items(list) {
             Row(
                 modifier
                     .fillMaxWidth()
-                    .height(120.dp)
+                    .height(150.dp)
                     .padding(8.dp)
                     .background(bottomSheetColor, RoundedCornerShape(15))
             ) {
 
                 Image(
-                    painter = BitmapPainter(list[it].imageBitmap.toBitmap().asImageBitmap()),
+                    painter = BitmapPainter(it.imageBitmap.toBitmap().asImageBitmap()),
                     "",
                     modifier = Modifier
                         .height(65.dp)
@@ -132,20 +136,25 @@ fun ListOfMessages(viewModel: HistoricViewModel?, modifier: Modifier = Modifier)
 
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = list[it].title,
+                        text = it.title,
                         maxLines = 1,
                         style = MaterialTheme.typography.headlineLarge,
                         modifier = Modifier.padding(8.dp)
                     )
                     Text(
-                        text = list[it].message,
+                        text = it.message,
                         style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(8.dp)
+                        modifier = Modifier.padding(8.dp, 0.dp, 0.dp, 0.dp)
+                    )
+                    Text(
+                        text = DateFormat.getDateTimeInstance().format(Date(it.date)),
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(8.dp, 0.dp, 0.dp, 0.dp)
                     )
                 }
                 Image(
                     painter = painterResource(
-                        if(list[it].wasDelivered) R.drawable.baseline_check_circle_24
+                        if(it.wasDelivered) R.drawable.baseline_check_circle_24
                         else R.drawable.baseline_close_24),
                     contentDescription = "",
                     modifier = Modifier
@@ -154,7 +163,7 @@ fun ListOfMessages(viewModel: HistoricViewModel?, modifier: Modifier = Modifier)
                         .height(24.dp),
                     alignment = Alignment.TopEnd,
                     colorFilter = ColorFilter.tint(
-                        if(list[it].wasDelivered) Color(0xFF81C784) else Color(0xFFE57373)
+                        if(it.wasDelivered) Color(0xFF81C784) else Color(0xFFE57373)
                     )
                 )
 

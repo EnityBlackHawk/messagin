@@ -9,6 +9,7 @@ data class MessagePersist (
     @PrimaryKey
     val id : String,
     val title: String,
+    val date : Long,
     val message : String,
     val imageBitmap : String,
     var wasDelivered : Boolean = false
