@@ -50,7 +50,7 @@ class MessaginViewModel(
 
 
 
-    fun sendMessage()
+    suspend fun sendMessage(context: Context)
     {
         val bit =  BitmapFactory.decodeResource(
             resources, selectedMessage.value.imageResource
@@ -58,21 +58,21 @@ class MessaginViewModel(
         val push = PushNotification(
             NotificationData(selectedMessage.value.title, messageText.value.text,
                 bit.convertToString()),
-            FirebaseService.token,
+            FirebaseService.getToken(context) ?: throw RuntimeException("Token was null"),
             Date().time
         )
         sendNotification(push)
         messageText.value = TextFieldValue("")
     }
 
-    fun sendCustomMessage(title : String, message : String, image : Bitmap)
+    suspend fun sendCustomMessage(context: Context, title : String, message : String, image : Bitmap)
     {
+
         val push = PushNotification(
             NotificationData(title, message, image.convertToString()),
-            FirebaseService.token,
+            FirebaseService.getToken(context) ?: throw RuntimeException("Token was null"),
             Date().time
         )
-
         sendNotification(push)
     }
 
@@ -82,6 +82,7 @@ class MessaginViewModel(
         CoroutineScope(Dispatchers.IO).launch {
 
             try {
+                Log.d("MessageViewModel", "Request send")
                 val response = RetrofitInstance.api.sendNotification(notification)
                 if(response.isSuccessful)
                 {

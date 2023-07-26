@@ -1,5 +1,6 @@
 package com.blackhawk.messagin.viewModel
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
@@ -39,11 +40,11 @@ class HistoricViewModel(private val dao: MessagePersistDao) : ViewModel() {
         return ret
     }
 
-    fun requestIsDelivered() {
+    fun requestIsDelivered(context : Context) {
 
 
         CoroutineScope(Dispatchers.IO).launch {
-            val confirmations = RetrofitInstance.api.getConfirmations(FirebaseService.token!!)
+            val confirmations = RetrofitInstance.api.getConfirmations(FirebaseService.getToken(context)!!)
 
             confirmations.body()?.forEach {tmp->
                 val x = _storedMessages.find { it.id == tmp.id }

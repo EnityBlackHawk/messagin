@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -66,26 +67,34 @@ fun Content(values: Bundle, bitString : String?) {
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        Column(modifier = Modifier.padding(14.dp)) {
-            Image(painter = BitmapPainter(
-                bitString?.toBitmap()?.asImageBitmap() ?: BitmapFactory.decodeResource(
-                    LocalContext.current.resources, R.drawable.coracao
-                ).asImageBitmap()
-            ), contentDescription = "",
-                Modifier.fillMaxWidth()
-            )
-            Text(text = values.getString("title") ?: "Title", style = MaterialTheme.typography.headlineLarge)
-            Text(text = values.getString("message") ?: "Message", style = MaterialTheme.typography.titleLarge)
-            Text(
-                text = SimpleDateFormat(
-                    "dd/MM/YYYY HH:mm",
-                    Locale.getDefault()
-                ).format(Date(values.getString("dateTime")?.toLong() ?: Date().time) ),
-                style = MaterialTheme.typography.bodyLarge
 
-            )
+       Column(modifier = Modifier.padding(14.dp)) {
+           Image(
+               painter = BitmapPainter(
+                   bitString?.toBitmap()?.asImageBitmap() ?: BitmapFactory.decodeResource(
+                       LocalContext.current.resources, R.drawable.coracao
+                   ).asImageBitmap()
+               ), contentDescription = "",
+               Modifier.fillMaxWidth()
+           )
+           Text(
+               text = values.getString("title") ?: "Title",
+               style = MaterialTheme.typography.headlineLarge
+           )
+           Text(
+               text = values.getString("message") ?: "Message",
+               style = MaterialTheme.typography.titleLarge
+           )
+           Text(
+               text = SimpleDateFormat(
+                   "dd/MM/YYYY HH:mm",
+                   Locale.getDefault()
+               ).format(Date(values.getString("dateTime")?.toLong() ?: Date().time)),
+               style = MaterialTheme.typography.bodyLarge
 
-        }
+           )
+       }
+
     }
 }
 

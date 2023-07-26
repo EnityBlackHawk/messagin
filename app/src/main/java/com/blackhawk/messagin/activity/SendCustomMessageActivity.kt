@@ -51,6 +51,9 @@ import com.blackhawk.messagin.tools.convertToString
 import com.blackhawk.messagin.ui.theme.MessaginTheme
 import com.blackhawk.messagin.viewModel.MessaginViewModel
 import com.blackhawk.messagin.viewModel.MessaginViewModelFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.util.Date
 
@@ -76,17 +79,21 @@ class SendCustomMessageActivity : ComponentActivity() {
             MessaginTheme {
 
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                    val context = this
                     SendCustomMessageContent(bit = bit!!) {
                         title, message ->
-                        viewModel.sendCustomMessage(title, message, bit!!)
+                        CoroutineScope(Dispatchers.IO).launch {
+                            viewModel.sendCustomMessage(this@SendCustomMessageActivity, title, message, bit!!)
 
-                        NotificationService(this).pushNotification(
-                            "Teste",
-                            title,
-                            message,
-                            bit!!.convertToString(),
-                            Date().time.toString()
-                        )
+                            NotificationService(context).pushNotification(
+                                "Teste",
+                                title,
+                                message,
+                                bit!!.convertToString(),
+                                Date().time.toString()
+                            )
+
+                        }
 
                     }
                 }

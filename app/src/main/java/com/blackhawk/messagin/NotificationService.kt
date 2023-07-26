@@ -90,10 +90,12 @@ class NotificationService(private val context : Context) {
         // Bobbles
         val targetBobble = Intent(context, BubbleActivity::class.java)
 
-        val key = Random(500).nextInt()
+        val key = Random.nextInt()
         runBlocking {
             val dataKey = stringPreferencesKey(key.toString())
             context.dataStore.edit {
+                if(it.asMap().size == 10)
+                    it.clear()
                 it[dataKey] = imageByteArray
             }
         }
@@ -123,7 +125,7 @@ class NotificationService(private val context : Context) {
                 .setIcon(IconCompat.createWithBitmap(bit))
                 .build()
 
-
+        ShortcutManagerCompat.removeAllDynamicShortcuts(context)
 
         // Create sharing shortcut
         val shortcutId = "abc"

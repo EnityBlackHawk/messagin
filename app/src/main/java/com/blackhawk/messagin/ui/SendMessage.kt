@@ -225,6 +225,8 @@ fun BottomSheetContent(
     onClose : @Composable () -> Unit
 ) {
 
+    val context = LocalContext.current
+
     var isSended by remember {
         mutableStateOf(false)
     }
@@ -285,16 +287,17 @@ fun BottomSheetContent(
                     targetState = isSended,
                     transitionSpec = {
                         fadeIn() with fadeOut()
-                    }
+                    }, label = ""
                 ) {
                     if(!it)
                         Button(
                             modifier = Modifier.padding(0.dp, 14.dp, 0.dp, 0.dp),
                             onClick = {
-                                viewModel!!.sendMessage()
-                                isSended = true
 
                                 CoroutineScope(Dispatchers.IO).launch {
+                                    viewModel!!.sendMessage(context)
+                                    isSended = true
+
                                     delay(3000)
                                     forExit = true
                                     isSended = false

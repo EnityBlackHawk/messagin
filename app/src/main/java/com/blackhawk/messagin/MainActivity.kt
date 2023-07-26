@@ -69,7 +69,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
 
-        FirebaseService.sharedPreferences = getSharedPreferences("TokenPreferences", MODE_PRIVATE)
         notification = NotificationService(this)
 
         if(!notification.hasNotificationPermission)
@@ -97,9 +96,10 @@ class MainActivity : ComponentActivity() {
 
             // Log and toast
             Log.d(TAG, token)
-            FirebaseService.token = token
+
 
             CoroutineScope(Dispatchers.IO).launch {
+                FirebaseService.setToken(this@MainActivity, token)
                 RetrofitInstance.api.registerUser(
                     User(token, null)
                 )
