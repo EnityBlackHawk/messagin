@@ -90,7 +90,8 @@ class FirebaseService : FirebaseMessagingService() {
                 it,
                 message.data["messageTitle"]!!,
                 message.data["message"],
-                imageByte?.imageBytes
+                imageByte?.imageBytes,
+                message.data["sendDate"]!!
             )
         }
     }

@@ -1,5 +1,6 @@
 package com.blackhawk.messagin.ui
 
+import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -60,7 +61,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
+import com.blackhawk.messagin.NotificationService
 import com.blackhawk.messagin.R
+import com.blackhawk.messagin.tools.convertToString
 import com.blackhawk.messagin.ui.theme.MessaginTheme
 import com.blackhawk.messagin.ui.theme.bottomSheetColor
 import com.blackhawk.messagin.viewModel.MessaginViewModel
@@ -68,7 +71,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
+import java.util.Date
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -84,8 +87,18 @@ fun SendMessage(navController: NavController?, viewModel: MessaginViewModel?) {
     val scope = rememberCoroutineScope()
 
 
-
     val messages by remember { viewModel!!.messagesList }
+
+
+//    NotificationService(context).pushNotification(
+//        "Teste",
+//        "MessageTitle",
+//        "Isso é um teste",
+//        BitmapFactory.decodeResource(
+//            context.resources, messages[2].imageResource
+//        ).convertToString(),
+//        Date().time.toString()
+//    )
 
     BottomSheetScaffold(
         sheetContent = {
@@ -159,7 +172,7 @@ fun SendMessage(navController: NavController?, viewModel: MessaginViewModel?) {
                             .width(32.dp)
                             .align(Alignment.Bottom)
                             .clickable {
-                                       navController?.navigate(Screen.Historic.route)
+                                navController?.navigate(Screen.Historic.route)
                             },
                         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary)
                     )

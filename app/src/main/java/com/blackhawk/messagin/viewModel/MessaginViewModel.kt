@@ -2,6 +2,7 @@ package com.blackhawk.messagin.viewModel
 
 import android.content.Context
 import android.content.res.Resources
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -12,6 +13,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.blackhawk.messagin.NotificationService
 import com.blackhawk.messagin.R
 import com.blackhawk.messagin.TAG
 import com.blackhawk.messagin.api.RetrofitInstance
@@ -47,6 +49,7 @@ class MessaginViewModel(
     var messageText = mutableStateOf(TextFieldValue(""))
 
 
+
     fun sendMessage()
     {
         val bit =  BitmapFactory.decodeResource(
@@ -55,10 +58,22 @@ class MessaginViewModel(
         val push = PushNotification(
             NotificationData(selectedMessage.value.title, messageText.value.text,
                 bit.convertToString()),
-            FirebaseService.token
+            FirebaseService.token,
+            Date().time
         )
         sendNotification(push)
         messageText.value = TextFieldValue("")
+    }
+
+    fun sendCustomMessage(title : String, message : String, image : Bitmap)
+    {
+        val push = PushNotification(
+            NotificationData(title, message, image.convertToString()),
+            FirebaseService.token,
+            Date().time
+        )
+
+        sendNotification(push)
     }
 
 
@@ -70,12 +85,11 @@ class MessaginViewModel(
                 val response = RetrofitInstance.api.sendNotification(notification)
                 if(response.isSuccessful)
                 {
-                    Log.d("MessageViewModel", "Response ${Gson().toJson(response)}")
                     messagePersistDao?.insert(
                         MessagePersist(
                             response.body()?.id!!,
                             notification.data.title,
-                            Date().time,
+                            notification.date,
                             notification.data.message,
                             notification.data.imageResource
                         )

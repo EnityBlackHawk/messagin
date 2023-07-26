@@ -1,6 +1,7 @@
 package com.blackhawk.messagin
 
 import android.app.AlertDialog
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -13,7 +14,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import com.blackhawk.messagin.api.RetrofitInstance
+import com.blackhawk.messagin.data.NotificationData
 import com.blackhawk.messagin.data.User
 import com.blackhawk.messagin.firebase.FirebaseService
 import com.blackhawk.messagin.ui.Navigation
@@ -28,15 +36,20 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.ktx.messaging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 const val TAG = "MainActivity"
 
 const val TOPIC = "NewVersion"
 
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "test")
+
 class MainActivity : ComponentActivity() {
 
     private lateinit var notification : NotificationService
+
 
     val viewModel : MessaginViewModel by viewModels {
         MessaginViewModelFactory(
@@ -54,6 +67,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
 
         FirebaseService.sharedPreferences = getSharedPreferences("TokenPreferences", MODE_PRIVATE)
         notification = NotificationService(this)
