@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -83,6 +84,8 @@ class MainActivity : ComponentActivity() {
 
         FirebaseMessaging.getInstance().subscribeToTopic(TOPIC)
 
+
+
         FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
             if (!task.isSuccessful) {
                 Log.w(TAG, "Fetching FCM registration token failed", task.exception)
@@ -98,11 +101,13 @@ class MainActivity : ComponentActivity() {
             Log.d(TAG, token)
 
 
-            CoroutineScope(Dispatchers.IO).launch {
+            runBlocking {
                 FirebaseService.setToken(this@MainActivity, token)
                 RetrofitInstance.api.registerUser(
                     User(token, null)
                 )
+                Toast.makeText(this@MainActivity, "Registration complete", Toast.LENGTH_LONG)
+                    .show()
             }
 
         })
