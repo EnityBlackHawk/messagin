@@ -150,7 +150,7 @@ fun SendMessage(navController: NavController?, viewModel: MessaginViewModel?) {
                 color = MaterialTheme.colorScheme.primary,
                 shape = RoundedCornerShape(0f, 0f, 0f, 50f)
             ) {
-                Row(modifier = Modifier.padding(14.dp),) {
+                Row(modifier = Modifier.padding(14.dp, 14.dp, 14.dp, 0.dp),) {
                     Column(
                         verticalArrangement = Arrangement.Bottom,
                         modifier = Modifier.weight(1f)

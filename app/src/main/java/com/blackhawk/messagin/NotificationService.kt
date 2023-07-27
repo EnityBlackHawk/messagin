@@ -48,7 +48,7 @@ class NotificationService(private val context : Context) {
             val channel = NotificationChannel (
                 "main",
                 "Main",
-                NotificationManager.IMPORTANCE_MIN
+                NotificationManager.IMPORTANCE_HIGH
             )
             channel.enableVibration(true)
             channel.enableLights(true)
