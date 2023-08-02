@@ -12,8 +12,9 @@ android {
         applicationId "com.blackhawk.messagin"
         minSdk 26
         targetSdk 34
-        versionCode 4
-        versionName "4.0-Miriam"
+        versionCode 5
+        versionName "5.0-Luan (SSE-BETA)"
+
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -28,11 +29,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
     buildFeatures {
         compose true
@@ -86,6 +87,8 @@ dependencies {
     implementation 'io.coil-kt:coil-compose:2.4.0'
     implementation 'androidx.datastore:datastore:1.1.0-alpha04'
     implementation 'androidx.datastore:datastore-preferences:1.1.0-alpha04'
+
+    implementation "com.squareup.okhttp3:okhttp-sse:4.9.3"
 
 
 }

@@ -32,7 +32,7 @@ interface NotificationAPI {
     @POST("/api/user/register")
     suspend fun registerUser(
         @Body user : User
-    ) : Response<ResponseBody>
+    ) : Response<User>
 
     @PUT("/api/request/confirm")
     suspend fun confirmMessage(

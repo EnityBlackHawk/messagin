@@ -6,7 +6,6 @@
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-
     <application
         android:name=".MessaginApplication"
         android:allowBackup="true"
@@ -20,23 +19,29 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
 
+        <service
+            android:name=".service.ServerSentEventService"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":SSEProcess"
+            >
+
+        </service>
+
         <activity
             android:name=".activity.BubbleActivity"
+            android:allowEmbedded="true"
+            android:documentLaunchMode="always"
             android:exported="false"
             android:label="@string/title_activity_bubble"
-            android:theme="@style/Theme.Messagin"
-            android:allowEmbedded="true"
             android:resizeableActivity="true"
-            android:documentLaunchMode="always"
-
-            >
+            android:theme="@style/Theme.Messagin">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="com.blackhawk.messagin.MESSAGE_RECEVED"/>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="com.blackhawk.messagin.MESSAGE_RECEVED" />
             </intent-filter>
-
         </activity>
-
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -45,18 +50,19 @@
             android:theme="@style/Theme.Messagin">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
-
-        <activity android:name=".activity.SendCustomMessageActivity"
+        <activity
+            android:name=".activity.SendCustomMessageActivity"
             android:exported="true"
-            android:theme="@style/Theme.Messagin"
-            >
+            android:theme="@style/Theme.Messagin">
             <intent-filter>
-                <action android:name="android.intent.action.SEND"/>
-                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="image/*" />
             </intent-filter>
         </activity>
@@ -69,9 +75,6 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
-
-
     </application>
 
 </manifest>

@@ -55,8 +55,6 @@ class NotificationService(private val context : Context) {
             notificationManager.createNotificationChannel(channel)
         }
 
-
-
         verifyPermission()
     }
 
@@ -75,7 +73,7 @@ class NotificationService(private val context : Context) {
 
         val intent = Intent(context, MainActivity::class.java)
 
-        val notificationId = 100
+        val notificationId = Random.nextInt()
 
 
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -169,6 +167,7 @@ class NotificationService(private val context : Context) {
 
         val notification = NotificationCompat.Builder(context, "main")
             .setBubbleMetadata(bubbleMetadata)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
             .setContentTitle(title)
             .setContentText(messageTitle)
             .setSmallIcon(R.drawable.coracao)
@@ -188,7 +187,6 @@ class NotificationService(private val context : Context) {
                     )
             )
             .build()
-
 
 
         notificationManager.notify(notificationId, notification)

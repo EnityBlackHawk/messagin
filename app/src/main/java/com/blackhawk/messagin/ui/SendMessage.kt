@@ -54,6 +54,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -63,6 +64,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
 import com.blackhawk.messagin.NotificationService
 import com.blackhawk.messagin.R
+import com.blackhawk.messagin.api.ServerSentEvent
 import com.blackhawk.messagin.tools.convertToString
 import com.blackhawk.messagin.ui.theme.MessaginTheme
 import com.blackhawk.messagin.ui.theme.bottomSheetColor
@@ -89,16 +91,9 @@ fun SendMessage(navController: NavController?, viewModel: MessaginViewModel?) {
 
     val messages by remember { viewModel!!.messagesList }
 
-
-//    NotificationService(context).pushNotification(
-//        "Teste",
-//        "MessageTitle",
-//        "Isso é um teste",
-//        BitmapFactory.decodeResource(
-//            context.resources, messages[2].imageResource
-//        ).convertToString(),
-//        Date().time.toString()
-//    )
+    ServerSentEvent("abc") {
+        Log.d("Teste", it)
+    }.receiveEvents()
 
     BottomSheetScaffold(
         sheetContent = {
@@ -156,7 +151,7 @@ fun SendMessage(navController: NavController?, viewModel: MessaginViewModel?) {
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(
-                            text = "Olá princesa",
+                            text = stringResource(id = R.string.userName).format("Olá"),
                             style = MaterialTheme.typography.headlineLarge
                         )
                         Text(
