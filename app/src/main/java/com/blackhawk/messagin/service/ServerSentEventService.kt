@@ -17,7 +17,9 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.blackhawk.messagin.NotificationService
 import com.blackhawk.messagin.R
+import com.blackhawk.messagin.api.RetrofitInstance
 import com.blackhawk.messagin.api.ServerSentEvent
+import com.blackhawk.messagin.data.Image
 import com.blackhawk.messagin.dataStore
 import com.blackhawk.messagin.tools.convertToString
 import kotlinx.coroutines.flow.first
@@ -71,13 +73,12 @@ class ServerSentEventService : Service() {
             sse = ServerSentEvent(
                 getUid(applicationContext)!!
             ) {
-                sendNotification(it)
-                Log.d("ServerSentEventService", it)
-                sse.addCallback {
-                    Log.d("TEste", it)
+                it.apply {
+                    processEvent(data)
                 }
             }
         }
+        sse.receiveEvents()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -87,6 +88,40 @@ class ServerSentEventService : Service() {
 
     override fun onDestroy() {
         Log.d("ServerSentEventService", "Stop")
+    }
+
+
+    private fun processEvent(data: Map<String, String>)
+    {
+
+
+        var imageByte : Image? = null
+        runBlocking {
+            val resp = RetrofitInstance.api.getByteArray(
+                Image(data["imageResource"]!!, null)
+            )
+
+            if(!resp.isSuccessful)
+            {
+                Log.e("Service", resp.message())
+                Log.e("Service", resp.errorBody().toString())
+                return@runBlocking
+            }
+            imageByte = resp.body()
+        }
+
+        assert(imageByte?.imageBytes != null) {
+            Log.e("ServerSentEventService", "Bytes was null")
+        }
+
+        NotificationService(this@ServerSentEventService).pushNotification(
+            data["title"]!!,
+            data["messageTitle"]!!,
+            data["message"],
+            imageByte?.imageBytes ?:
+            BitmapFactory.decodeResource(this@ServerSentEventService.resources, R.drawable.coracao).convertToString(),
+            data["sendDate"]!!
+        )
     }
 
     private fun sendNotification(message : String)

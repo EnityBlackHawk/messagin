@@ -23,73 +23,23 @@ import java.net.URI
 import java.net.URL
 import java.time.Duration
 
-class ServerSentEvent(private val uid : String, callback : (String) -> Unit) {
-
-//    private val sseClient = OkHttpClient.Builder()
-//        .connectTimeout(Duration.ofMinutes(5))
-//        .readTimeout(Duration.ofMinutes(10))
-//        .writeTimeout(Duration.ofMinutes(10))
-//        .build()
-//
-//    private val sseRequest = Request.Builder()
-//        .url(Constants.BASE_URL + "/api/sse/subscribe/${uid}")
-//        .header("Accept", "application/json")
-//        .addHeader("Accept", "text/event-stream")
-//        .build()
-//
-//    private val sseEventSourceListener = object : EventSourceListener()
-//    {
-//
-//        var callback : ((String) -> Unit)? = null
-//
-//        override fun onOpen(eventSource: EventSource, response: Response) {
-//            super.onOpen(eventSource, response)
-//            Log.d("SSE", "Connection succeeded")
-//        }
-//
-//        override fun onEvent(eventSource: EventSource, id: String?, type: String?, data: String) {
-//            super.onEvent(eventSource, id, type, data)
-//            Log.d("SSE", data)
-//            callback?.invoke(data)
-//        }
-//
-//        override fun onFailure(eventSource: EventSource, t: Throwable?, response: Response?) {
-//            super.onFailure(eventSource, t, response)
-//            Log.d("SSE", "Failure: ${t?.message}, ${response?.message}")
-//        }
-//
-//        override fun onClosed(eventSource: EventSource) {
-//            super.onClosed(eventSource)
-//            Log.d("SSE", "Connection Closed")
-//        }
-//
-//        fun addCallback(callback : (String) -> Unit)
-//        {
-//            this.callback = callback
-//        }
-//
-//    }
-//
-//    fun connect(callback : (String) -> Unit) {
-//        sseEventSourceListener.addCallback(callback)
-//        EventSources.createFactory(sseClient)
-//            .newEventSource(sseRequest, sseEventSourceListener)
-//    }
 
 
+class ServerSentEvent(private val uid : String, callback : (SSEResponse) -> Unit) {
+
+    data class SSEResponse (val data : Map<String, String>)
 
     companion object {
-        private val callbacks : MutableList<(String)->Unit> = mutableListOf()
+        private val callbacks : MutableList<(SSEResponse)->Unit> = mutableListOf()
         private lateinit var connection: HttpURLConnection
         private var thread : Thread? = null
     }
 
     init {
         callbacks.add(callback)
-
     }
 
-    fun addCallback(callback : (String) -> Unit)
+    fun addCallback(callback : (SSEResponse) -> Unit)
     {
         callbacks.add(callback)
     }
@@ -101,16 +51,77 @@ class ServerSentEvent(private val uid : String, callback : (String) -> Unit) {
             val url = URL(Constants.BASE_URL + "/api/sse/subscribe/$uid")
             connection = url.openConnection() as HttpURLConnection
 
+
             val inputStream = connection.inputStream
 
             BufferedReader(InputStreamReader(inputStream)).lines().forEach {
-                Log.d("SSE", it)
-                callbacks.forEach { c ->
-                    c(it)
+                if(!it.isNullOrBlank())
+                {
+                    val sr = convertJson(it.substring(6))
+                    callbacks.forEach { c ->
+                        c(sr)
+                    }
+
                 }
             }
         }.start()
     }
+
+    fun convertJson(json : String) : SSEResponse
+    {
+        Log.d("JSON", "Start")
+
+
+        var editedJson = json.substring(0, json.length - 1)
+        var map : MutableMap<String, String> = mutableMapOf()
+        var list : MutableList<String> = mutableListOf()
+        var breakpointPosition = 0
+        var i = 0
+        while (true) {
+            if (i >= editedJson.length) {
+                list.add(editedJson.substring(breakpointPosition, i))
+                break
+            }
+            val char = editedJson[i]
+            when (char) {
+                ',' -> {
+                    list.add(editedJson.substring(breakpointPosition, i))
+                    breakpointPosition = i + 1
+                    i++
+                }
+                //TODO -> Se objeto dentro de objeto, haverá bug
+                '{' -> {
+                    var j = i
+                    var char2 = editedJson[j + 1]
+                    while (char2 != '}') {
+                        char2 = editedJson[j++]
+                    }
+
+                    i = j
+                }
+
+                else -> i++
+
+            }
+        }
+
+
+
+        list.forEach { s ->
+            val key_value = s.split(":".toRegex(), 2)
+
+            map[key_value[0].filter { it != '"' }] = key_value[1].filter { it != '"' }
+        }
+
+        list.forEach {
+            Log.d("JSON", it)
+        }
+
+
+        return SSEResponse(map)
+
+    }
+
 
     fun disconnect()
     {

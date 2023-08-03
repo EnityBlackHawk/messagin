@@ -12,8 +12,8 @@ android {
         applicationId "com.blackhawk.messagin"
         minSdk 26
         targetSdk 34
-        versionCode 5
-        versionName "5.0-Luan (SSE-BETA)"
+        versionCode 8
+        versionName "6.0-Luan (SSE-BETA)"
 
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

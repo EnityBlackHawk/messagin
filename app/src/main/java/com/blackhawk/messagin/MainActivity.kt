@@ -113,7 +113,7 @@ class MainActivity : ComponentActivity() {
         }
 
         Intent(this, ServerSentEventService::class.java).also {
-            stopService(it)
+            startService(it)
         }
 
         setContent {

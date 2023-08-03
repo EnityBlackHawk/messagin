@@ -23,6 +23,7 @@ import com.blackhawk.messagin.data.NotificationData
 import com.blackhawk.messagin.data.PushNotification
 import com.blackhawk.messagin.firebase.FirebaseService
 import com.blackhawk.messagin.room.MessagePersistDao
+import com.blackhawk.messagin.service.ServerSentEventService
 import com.blackhawk.messagin.tools.convertToString
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
@@ -58,7 +59,7 @@ class MessaginViewModel(
         val push = PushNotification(
             NotificationData(selectedMessage.value.title, messageText.value.text,
                 bit.convertToString()),
-            FirebaseService.getToken(context) ?: throw RuntimeException("Token was null"),
+            ServerSentEventService.getUid(context),
             Date().time
         )
         sendNotification(push)

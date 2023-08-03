@@ -91,10 +91,6 @@ fun SendMessage(navController: NavController?, viewModel: MessaginViewModel?) {
 
     val messages by remember { viewModel!!.messagesList }
 
-    ServerSentEvent("abc") {
-        Log.d("Teste", it)
-    }.receiveEvents()
-
     BottomSheetScaffold(
         sheetContent = {
             BottomSheetContent(viewModel = viewModel)
